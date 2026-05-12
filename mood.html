@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎉 행운 추첨 이벤트</title>
+  <link href="https://fonts.googleapis.com/css2?family=Gmarket+Sans:wght@300;500;700&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --yellow: #FFD93D;
+      --yellow-dark: #F4A300;
+      --sky: #60C5F1;
+      --sky-light: #D6F0FF;
+      --sky-dark: #1A7FB5;
+      --text: #1E293B;
+      --sub: #64748B;
+      --radius: 20px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: linear-gradient(135deg, #FFF9DB 0%, #E0F4FF 50%, #FFF0C5 100%);
+      min-height: 100vh; color: var(--text); overflow-x: hidden;
+    }
+    body::before {
+      content: ""; position: fixed; top: -100px; right: -100px;
+      width: 400px; height: 400px; border-radius: 50%;
+      background: radial-gradient(circle, #FFD93D55, transparent 70%); pointer-events: none;
+    }
+    body::after {
+      content: ""; position: fixed; bottom: -80px; left: -80px;
+      width: 350px; height: 350px; border-radius: 50%;
+      background: radial-gradient(circle, #60C5F155, transparent 70%); pointer-events: none;
+    }
+    .container { max-width: 600px; margin: 0 auto; padding: 40px 20px 80px; }
+    header { text-align: center; margin-bottom: 36px; }
+    .badge {
+      display: inline-block; background: var(--yellow); color: var(--text);
+      font-family: 'Gmarket Sans', sans-serif; font-weight: 700; font-size: 13px;
+      padding: 6px 16px; border-radius: 99px; letter-spacing: 1px;
+      margin-bottom: 16px; box-shadow: 0 2px 10px #FFD93D66;
+    }
+    h1 { font-family: 'Gmarket Sans', sans-serif; font-weight: 700; font-size: clamp(26px,6vw,40px); line-height: 1.25; }
+    h1 span { color: var(--sky-dark); }
+    .sub { margin-top: 10px; font-size: 14px; color: var(--sub); }
+    .counter-card {
+      background: #fff; border-radius: var(--radius); padding: 20px 28px;
+      display: flex; justify-content: space-around; align-items: center;
+      box-shadow: 0 4px 24px #60C5F120; margin-bottom: 28px; border: 2px solid var(--sky-light);
+    }
+    .counter-item { text-align: center; }
+    .cnum { font-family: 'Gmarket Sans', sans-serif; font-size: 32px; font-weight: 700; color: var(--sky-dark); line-height: 1; }
+    .clabel { font-size: 12px; color: var(--sub); margin-top: 4px; }
+    .divider { width: 1px; height: 40px; background: var(--sky-light); }
+    .draw-wrap { text-align: center; margin-bottom: 32px; }
+    #draw-btn {
+      background: linear-gradient(135deg, var(--yellow), var(--yellow-dark));
+      color: var(--text); border: none; border-radius: 99px; padding: 18px 56px;
+      font-family: 'Gmarket Sans', sans-serif; font-size: 20px; font-weight: 700;
+      cursor: pointer; box-shadow: 0 6px 24px #FFD93D60, 0 2px 0 #c98b00;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    #draw-btn:hover { transform: translateY(-3px) scale(1.03); }
+    #draw-btn:active { transform: translateY(1px) scale(0.98); }
+    .prizes-card {
+      background: #fff; border-radius: var(--radius); padding: 24px;
+      box-shadow: 0 4px 24px #60C5F120; border: 2px solid #FFF3B0;
+      margin-bottom: 28px; display: none;
+    }
+    .prizes-card.on { display: block; }
+    .ptitle { font-family: 'Gmarket Sans', sans-serif; font-size: 15px; font-weight: 700; margin-bottom: 18px; }
+    .prow { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .pemoji { font-size: 20px; width: 28px; text-align: center; flex-shrink: 0; }
+    .pinfo { flex: 1; min-width: 0; }
+    .pname { font-size: 13px; font-weight: 700; }
+    .pbar-bg { background: #F1F5F9; border-radius: 99px; height: 7px; margin-top: 5px; overflow: hidden; }
+    .pbar { height: 100%; border-radius: 99px; transition: width 0.5s; }
+    .pcnt { font-family: 'Gmarket Sans', sans-serif; font-size: 14px; font-weight: 700; color: var(--sky-dark); width: 36px; text-align: right; flex-shrink: 0; }
+    .admin-card { background: #F8FAFC; border-radius: var(--radius); padding: 20px 24px; border: 2px dashed #CBD5E1; }
+    .atitle { font-size: 13px; font-weight: 700; color: var(--sub); margin-bottom: 14px; }
+    .pw-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    #pw-input {
+      border: 2px solid #E2E8F0; border-radius: 10px; padding: 9px 14px;
+      font-size: 14px; width: 130px; outline: none; font-family: inherit;
+    }
+    #pw-input:focus { border-color: var(--sky); }
+    .abtn {
+      border: none; border-radius: 10px; padding: 9px 18px;
+      font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Gmarket Sans', sans-serif;
+    }
+    #pw-btn { background: var(--sky); color: #fff; }
+    #pw-btn:hover { background: var(--sky-dark); }
+    #reset-btn { background: #E2E8F0; color: #94A3B8; }
+    #reset-btn.on { background: #FCA5A5; color: #7F1D1D; }
+    #reset-btn.on:hover { background: #F87171; }
+    #pw-msg { font-size: 12px; margin-top: 8px; }
+    #result-overlay {
+      display: none; position: fixed; inset: 0; z-index: 9000;
+      justify-content: center; align-items: center;
+      backdrop-filter: blur(6px); background: rgba(255,255,255,0.5);
+    }
+    #result-overlay.on { display: flex; }
+    #result-card {
+      background: #fff; border-radius: 28px; padding: 48px 40px; text-align: center;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.15); border: 4px solid var(--yellow);
+      max-width: 340px; width: 90%;
+    }
+    #result-emoji { font-size: 72px; display: block; margin-bottom: 16px; }
+    .rtag { font-size: 13px; font-weight: 700; color: var(--sub); margin-bottom: 8px; }
+    #result-label { font-family: 'Gmarket Sans', sans-serif; font-size: 24px; font-weight: 700; margin-bottom: 28px; }
+    #close-btn {
+      background: linear-gradient(135deg, var(--sky), var(--sky-dark));
+      color: #fff; border: none; border-radius: 99px; padding: 13px 36px;
+      font-size: 15px; font-weight: 700; cursor: pointer; font-family: 'Gmarket Sans', sans-serif;
+    }
+    #confetti-canvas { display: none; position: fixed; inset: 0; z-index: 9999; pointer-events: none; }
+    #status-msg {
+      text-align: center; font-size: 13px; color: var(--sub);
+      margin-bottom: 12px; min-height: 18px;
+    }
+    @media (max-width: 420px) { .container { padding: 24px 14px 60px; } #draw-btn { padding: 15px 40px; font-size: 17px; } }
+  </style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<div id="result-overlay">
+  <div id="result-card">
+    <span id="result-emoji">🎉</span>
+    <div class="rtag">🎊 축하합니다!</div>
+    <div id="result-label"></div>
+    <button id="close-btn">확인</button>
+  </div>
+</div>
+
+<div class="container">
+  <header>
+    <div class="badge">✨ LUCKY DRAW EVENT</div>
+    <h1>🎁 행운의<br/><span>경품 추첨</span></h1>
+    <p class="sub">버튼을 눌러 나만의 경품을 뽑아보세요!</p>
+  </header>
+
+  <div class="counter-card">
+    <div class="counter-item">
+      <div class="cnum" id="remaining-count">—</div>
+      <div class="clabel">남은 경품</div>
+    </div>
+    <div class="divider"></div>
+    <div class="counter-item">
+      <div class="cnum" id="total-count">400</div>
+      <div class="clabel">전체 수량</div>
+    </div>
+  </div>
+
+  <div id="status-msg">🔄 데이터베이스 연결 중...</div>
+
+  <div class="draw-wrap">
+    <button id="draw-btn">🎲 추첨하기</button>
+  </div>
+
+  <div class="prizes-card" id="prizes-card">
+    <div class="ptitle">🏆 경품 현황</div>
+    <div class="prow">
+      <div class="pemoji">☕</div>
+      <div class="pinfo"><div class="pname">스타벅스 텀블러</div>
+        <div class="pbar-bg"><div class="pbar" id="bar-starbucks" style="width:100%;background:linear-gradient(90deg,#00704A,#005f3f)"></div></div>
+      </div><div class="pcnt" id="cnt-starbucks">2</div>
+    </div>
+    <div class="prow">
+      <div class="pemoji">🧾</div>
+      <div class="pinfo"><div class="pname">컴포즈카페 금액권</div>
+        <div class="pbar-bg"><div class="pbar" id="bar-compose" style="width:100%;background:linear-gradient(90deg,#FF6B35,#d9531e)"></div></div>
+      </div><div class="pcnt" id="cnt-compose">3</div>
+    </div>
+    <div class="prow">
+      <div class="pemoji">✏️</div>
+      <div class="pinfo"><div class="pname">문구세트</div>
+        <div class="pbar-bg"><div class="pbar" id="bar-stationary" style="width:100%;background:linear-gradient(90deg,#8B5CF6,#6d28d9)"></div></div>
+      </div><div class="pcnt" id="cnt-stationary">5</div>
+    </div>
+    <div class="prow">
+      <div class="pemoji">👜</div>
+      <div class="pinfo"><div class="pname">여행용 파우치</div>
+        <div class="pbar-bg"><div class="pbar" id="bar-pouch" style="width:100%;background:linear-gradient(90deg,#EC4899,#be185d)"></div></div>
+      </div><div class="pcnt" id="cnt-pouch">20</div>
+    </div>
+    <div class="prow">
+      <div class="pemoji">🥐</div>
+      <div class="pinfo"><div class="pname">츄러스 당첨</div>
+        <div class="pbar-bg"><div class="pbar" id="bar-churros" style="width:100%;background:linear-gradient(90deg,#F59E0B,#d97706)"></div></div>
+      </div><div class="pcnt" id="cnt-churros">370</div>
+    </div>
+  </div>
+
+  <div class="admin-card">
+    <div class="atitle">🔐 관리자 초기화</div>
+    <div class="pw-row">
+      <input type="password" id="pw-input" placeholder="암호 입력" maxlength="10" />
+      <button class="abtn" id="pw-btn">확인</button>
+      <button class="abtn" id="reset-btn">초기화</button>
+    </div>
+    <div id="pw-msg"></div>
+  </div>
+</div>
+
+<script>
+/* ── 설정 ─────────────────────────────────── */
+var PRIZES = [
+  { key:"starbucks",  label:"스타벅스 텀블러",   count:2,   color:"#00704A", emoji:"☕" },
+  { key:"compose",    label:"컴포즈카페 금액권", count:3,   color:"#FF6B35", emoji:"🧾" },
+  { key:"stationary", label:"문구세트",           count:5,   color:"#8B5CF6", emoji:"✏️" },
+  { key:"pouch",      label:"여행용 파우치",      count:20,  color:"#EC4899", emoji:"👜" },
+  { key:"churros",    label:"츄러스 당첨",        count:370, color:"#F59E0B", emoji:"🥐" }
+];
+var TOTAL = 400;
+var drawing = false;
+var db, stockRef, totalRef;
+
+/* ── UI 갱신 ─────────────────────────────── */
+function updateUI(stock, total) {
+  var rem = 0;
+  PRIZES.forEach(function(p){ rem += (stock[p.key] || 0); });
+  document.getElementById("remaining-count").textContent = rem;
+  document.getElementById("total-count").textContent = total;
+  PRIZES.forEach(function(p){
+    var cur = (stock[p.key] != null) ? stock[p.key] : 0;
+    var bar = document.getElementById("bar-" + p.key);
+    var cnt = document.getElementById("cnt-" + p.key);
+    if (bar) bar.style.width = Math.round(cur / p.count * 100) + "%";
+    if (cnt) cnt.textContent = cur;
+  });
+}
+
+/* ── DB 초기화 ───────────────────────────── */
+function initDB(callback) {
+  var state = {};
+  PRIZES.forEach(function(p){ state[p.key] = p.count; });
+  stockRef.set(state, function() {
+    totalRef.set(TOTAL, function() {
+      if (callback) callback();
+    });
+  });
+}
+
+/* ── 앱 시작 (Firebase 로드 후 호출) ──────── */
+function startApp() {
+  var config = { databaseURL: "https://shot-95792-default-rtdb.firebaseio.com/" };
+  firebase.initializeApp(config);
+  db       = firebase.database();
+  stockRef = db.ref("lottery/stock");
+  totalRef = db.ref("lottery/total");
+
+  document.getElementById("status-msg").textContent = "";
+
+  /* 최초 DB 확인 */
+  stockRef.once("value", function(snap) {
+    if (!snap.exists()) {
+      initDB(function() { startListening(); });
+    } else {
+      startListening();
+    }
+  });
+}
+
+/* ── 실시간 리스너 ───────────────────────── */
+function startListening() {
+  stockRef.on("value", function(snap) {
+    var stock = snap.val() || {};
+    totalRef.once("value", function(ts) {
+      updateUI(stock, ts.val() != null ? ts.val() : TOTAL);
+    });
+  });
+}
+
+/* ── 추첨 ────────────────────────────────── */
+document.getElementById("draw-btn").onclick = function() {
+  if (drawing || !stockRef) return;
+  drawing = true;
+  var btn = this;
+  btn.textContent = "추첨 중...";
+  btn.style.opacity = "0.6";
+
+  var winner = null;
+  stockRef.transaction(function(cur) {
+    if (!cur) return cur;
+    var pool = [];
+    PRIZES.forEach(function(p){
+      for (var i = 0; i < (cur[p.key] || 0); i++) pool.push(p.key);
+    });
+    if (!pool.length) { winner = null; return cur; }
+    var picked = pool[Math.floor(Math.random() * pool.length)];
+    cur[picked] = (cur[picked] || 0) - 1;
+    winner = picked;
+    return cur;
+  }, function(err, committed) {
+    if (err) {
+      alert("오류가 발생했습니다.");
+    } else if (committed && winner) {
+      totalRef.transaction(function(t){ return (t || TOTAL) - 1; });
+      var prize = null;
+      PRIZES.forEach(function(p){ if (p.key === winner) prize = p; });
+      showResult(prize);
+    } else {
+      alert("😢 모든 경품이 소진되었습니다!");
+    }
+    drawing = false;
+    btn.textContent = "🎲 추첨하기";
+    btn.style.opacity = "1";
+  });
+};
+
+/* ── 결과 팝업 ───────────────────────────── */
+function showResult(prize) {
+  document.getElementById("result-emoji").textContent = prize.emoji;
+  document.getElementById("result-label").textContent = prize.label;
+  var ov = document.getElementById("result-overlay");
+  ov.style.display = "flex";
+  ov.style.background = prize.color + "22";
+  document.getElementById("result-card").style.borderColor = prize.color;
+  launchConfetti(prize.color);
+}
+document.getElementById("close-btn").onclick = function() {
+  document.getElementById("result-overlay").style.display = "none";
+};
+
+/* ── 컨페티 ──────────────────────────────── */
+function launchConfetti(hex) {
+  var cv = document.getElementById("confetti-canvas");
+  var ctx = cv.getContext("2d");
+  cv.width = innerWidth; cv.height = innerHeight; cv.style.display = "block";
+  var cols = [hex, "#FFD700", "#87CEEB", "#FF69B4", "#7CFC00"];
+  var pts = [];
+  for (var i = 0; i < 120; i++) {
+    pts.push({ x: Math.random()*cv.width, y: -10, r: Math.random()*8+4,
+      d: Math.random()*4+2, color: cols[Math.floor(Math.random()*cols.length)],
+      ta: 0, ts: Math.random()*0.1+0.05 });
+  }
+  var f = 0;
+  (function draw() {
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    pts.forEach(function(p){
+      ctx.beginPath(); ctx.ellipse(p.x,p.y,p.r,p.r/2,p.ta,0,Math.PI*2);
+      ctx.fillStyle = p.color; ctx.fill();
+      p.y += p.d; p.ta += p.ts; p.x += Math.sin(p.ta)*2;
+    });
+    if (++f < 160) requestAnimationFrame(draw);
+    else { ctx.clearRect(0,0,cv.width,cv.height); cv.style.display = "none"; }
+  })();
+}
+
+/* ── 관리자 암호 ─────────────────────────── */
+document.getElementById("pw-btn").onclick = function() {
+  var pw  = document.getElementById("pw-input").value;
+  var msg = document.getElementById("pw-msg");
+  if (pw === "9845") {
+    document.getElementById("reset-btn").classList.add("on");
+    document.getElementById("prizes-card").classList.add("on");
+    msg.textContent = "✅ 인증되었습니다.";
+    msg.style.color = "#16a34a";
+  } else {
+    msg.textContent = "❌ 암호가 틀렸습니다.";
+    msg.style.color = "#dc2626";
+  }
+};
+
+/* ── 초기화 ──────────────────────────────── */
+document.getElementById("reset-btn").onclick = function() {
+  if (!this.classList.contains("on")) return;
+  if (!confirm("정말 초기화하시겠습니까?")) return;
+  initDB(function() {
+    document.getElementById("reset-btn").classList.remove("on");
+    document.getElementById("prizes-card").classList.remove("on");
+    document.getElementById("pw-input").value = "";
+    document.getElementById("pw-msg").textContent = "";
+    alert("✅ 초기화 완료!");
+  });
+};
+
+/* ── Firebase SDK 동적 로드 (onload 보장) ── */
+function loadScript(src, onload) {
+  var s = document.createElement("script");
+  s.src = src;
+  s.onload = onload;
+  s.onerror = function() {
+    document.getElementById("status-msg").textContent = "⚠️ 네트워크 오류. 페이지를 새로고침해주세요.";
+  };
+  document.head.appendChild(s);
+}
+
+loadScript(
+  "https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js",
+  function() {
+    loadScript(
+      "https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js",
+      function() {
+        startApp();
+      }
+    );
+  }
+);
+</script>
+</body>
+</html>
