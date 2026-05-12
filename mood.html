@@ -309,6 +309,10 @@ document.getElementById("draw-btn").onclick = function() {
 
 /* ── 결과 팝업 ───────────────────────────── */
 function showResult(prize) {
+  var drawBtn = document.getElementById("draw-btn");
+  drawBtn.style.pointerEvents = "none";
+  drawBtn.style.opacity = "0.4";
+  drawBtn.style.cursor = "not-allowed";
   document.getElementById("result-emoji").textContent = prize.emoji;
   document.getElementById("result-label").textContent = prize.label;
   var ov = document.getElementById("result-overlay");
