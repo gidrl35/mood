@@ -97,9 +97,10 @@
     #result-overlay {
       display: none; position: fixed; inset: 0; z-index: 9000;
       justify-content: center; align-items: center;
-      backdrop-filter: blur(6px); background: rgba(255,255,255,0.5);
+      backdrop-filter: blur(6px); background: rgba(255,255,255,0.5); pointer-events: none;
     }
     #result-overlay.on { display: flex; }
+    #result-card { pointer-events: none; }
     #result-card {
       background: #fff; border-radius: 28px; padding: 48px 40px; text-align: center;
       box-shadow: 0 24px 80px rgba(0,0,0,0.15); border: 4px solid var(--yellow);
@@ -108,11 +109,7 @@
     #result-emoji { font-size: 72px; display: block; margin-bottom: 16px; }
     .rtag { font-size: 13px; font-weight: 700; color: var(--sub); margin-bottom: 8px; }
     #result-label { font-family: 'Gmarket Sans', sans-serif; font-size: 24px; font-weight: 700; margin-bottom: 28px; }
-    #close-btn {
-      background: linear-gradient(135deg, var(--sky), var(--sky-dark));
-      color: #fff; border: none; border-radius: 99px; padding: 13px 36px;
-      font-size: 15px; font-weight: 700; cursor: pointer; font-family: 'Gmarket Sans', sans-serif;
-    }
+
     #confetti-canvas { display: none; position: fixed; inset: 0; z-index: 9999; pointer-events: none; }
     #status-msg {
       text-align: center; font-size: 13px; color: var(--sub);
@@ -130,7 +127,7 @@
     <span id="result-emoji">🎉</span>
     <div class="rtag">🎊 축하합니다!</div>
     <div id="result-label"></div>
-    <button id="close-btn">확인</button>
+    <p id="reload-msg" style="font-size:13px;color:#64748B;margin-top:0;">🔄 다시 추첨하려면<br/>페이지를 새로고침 해주세요</p>
   </div>
 </div>
 
@@ -320,9 +317,7 @@ function showResult(prize) {
   document.getElementById("result-card").style.borderColor = prize.color;
   launchConfetti(prize.color);
 }
-document.getElementById("close-btn").onclick = function() {
-  document.getElementById("result-overlay").style.display = "none";
-};
+
 
 /* ── 컨페티 ──────────────────────────────── */
 function launchConfetti(hex) {
